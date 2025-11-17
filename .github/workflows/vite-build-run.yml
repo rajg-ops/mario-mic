@@ -1,0 +1,38 @@
+name: Build and Run Vite App
+
+on:
+  push:
+    branches:
+      - feature-mic
+  workflow_dispatch:
+
+jobs:
+  build-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Vite App
+        run: npm run build
+
+      - name: Start Vite Preview Server
+        run: |
+          nohup npm run preview -- --port 5173 > app.log 2>&1 &
+          sleep 5
+          cat app.log
+
+      - name: Check Running Ports
+        run: sudo netstat -tulpn | grep LISTEN || true
+
+      - name: Curl Vite App
+        run: curl -I http://localhost:5173 || true
