@@ -26,11 +26,10 @@ jobs:
         run: |
           nohup npm run dev -- --host --port 5173 > app.log 2>&1 &
           sleep 10
-          echo "------ DEV SERVER LOG ------"
           cat app.log
 
       - name: Check Ports
         run: sudo netstat -tulpn | grep LISTEN || true
 
-      - name: Curl Local Dev Server
+      - name: Curl Dev Server
         run: curl -I http://localhost:5173 || true
