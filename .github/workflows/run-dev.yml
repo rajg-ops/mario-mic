@@ -1,0 +1,36 @@
+name: Run App Locally
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature-mic
+
+jobs:
+  run-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Dev Server
+        run: |
+          nohup npm run dev -- --host --port 5173 > app.log 2>&1 &
+          sleep 10
+          echo "------ DEV SERVER LOG ------"
+          cat app.log
+
+      - name: Check Ports
+        run: sudo netstat -tulpn | grep LISTEN || true
+
+      - name: Curl Local Dev Server
+        run: curl -I http://localhost:5173 || true
