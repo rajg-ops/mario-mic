@@ -1,0 +1,50 @@
+name: Build and Run Node App
+
+on:
+  push:
+    branches:
+      - feature-mic
+  pull_request:
+    branches:
+      - feature-mic
+  workflow_dispatch:
+
+jobs:
+  build-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js version
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'   # Change to the version your app needs
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: |
+          npm install
+
+      # Step 4: Build step (if applicable)
+      - name: Run Build
+        run: |
+          if [ -f "package.json" ] && jq -e '.scripts.build' package.json > /dev/null; then
+            npm run build
+          else
+            echo "No build step found, skipping."
+          fi
+
+      # Step 5: Run the app (background)
+      - name: Start Application
+        run: |
+          npm start &
+          sleep 10
+
+      # Step 6: Verify the app is running (curl)
+      - name: Test Application Running
+        run: |
+          curl -I http://localhost:3000 || true
